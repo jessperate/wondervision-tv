@@ -1,6 +1,6 @@
 "use client";
 
-import { ContactShadows, OrbitControls } from "@react-three/drei";
+import { ContactShadows, Environment, Lightformer, OrbitControls } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import gsap from "gsap";
 import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -13,7 +13,7 @@ function ResponsiveCamera() {
   const size = useThree((state) => state.size);
 
   useEffect(() => {
-    const targetZ = size.width < 620 ? 20.4 : size.width < 980 ? 17.3 : 15.9;
+    const targetZ = size.width < 620 ? 20.8 : size.width < 980 ? 17.7 : 16.5;
     const tween = gsap.to(camera.position, {
       x: 0,
       y: size.width < 620 ? 0.55 : 0.35,
@@ -71,19 +71,45 @@ function Scene({
   return (
     <>
       <ResponsiveCamera />
-      <ambientLight intensity={1.15} color="#fff2d1" />
-      <hemisphereLight args={["#a7fff3", "#51301f", 1.2]} />
+      <ambientLight intensity={1.32} color="#fff2d1" />
+      <hemisphereLight args={["#b6fff2", "#6b3b22", 1.35]} />
       <spotLight
         position={[-6, 8, 7]}
         angle={0.46}
         penumbra={0.75}
-        intensity={85}
+        intensity={78}
         color="#fff0c9"
         castShadow
         shadow-mapSize={[1024, 1024]}
       />
-      <spotLight position={[7, 4, 4]} angle={0.58} penumbra={0.85} intensity={58} color="#f0a45d" />
+      <spotLight position={[7, 4, 4]} angle={0.58} penumbra={0.85} intensity={48} color="#f3ad68" />
       <PointerLight />
+      <Environment resolution={128}>
+        <Lightformer
+          form="rect"
+          intensity={3.4}
+          color="#fff3d4"
+          position={[-4.5, 5, 5]}
+          rotation={[0.3, -0.62, 0]}
+          scale={[5.5, 2.2, 1]}
+        />
+        <Lightformer
+          form="rect"
+          intensity={2.5}
+          color="#ef9a59"
+          position={[5.5, 1.5, 3]}
+          rotation={[0, 0.82, 0]}
+          scale={[3.2, 5, 1]}
+        />
+        <Lightformer
+          form="ring"
+          intensity={1.8}
+          color="#75d8ca"
+          position={[0, -3, 4]}
+          rotation={[Math.PI / 2, 0, 0]}
+          scale={4}
+        />
+      </Environment>
 
       <group ref={scene}>
         <RetroTelevision
@@ -153,7 +179,7 @@ export function WondervisionExperience() {
         <Canvas
           shadows
           dpr={[1, 1.75]}
-          camera={{ position: [0, 0.35, 15.9], fov: 34, near: 0.1, far: 100 }}
+          camera={{ position: [0, 0.35, 16.5], fov: 34, near: 0.1, far: 100 }}
           gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         >
           <Suspense fallback={null}>
