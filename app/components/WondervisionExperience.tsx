@@ -43,6 +43,23 @@ function PointerLight() {
   return <pointLight ref={light} position={[-4, 4, 7]} color="#ffe6b9" intensity={18} distance={20} decay={2} />;
 }
 
+function HorizonSurface() {
+  return (
+    <mesh
+      position={[0, -3.59, 2]}
+      rotation={[-Math.PI / 2, 0, 0]}
+      receiveShadow
+    >
+      <planeGeometry args={[42, 18]} />
+      <meshStandardMaterial
+        color="#49aaa4"
+        metalness={0.02}
+        roughness={0.9}
+      />
+    </mesh>
+  );
+}
+
 function Scene({
   channel,
   powered,
@@ -120,11 +137,13 @@ function Scene({
         />
       </group>
 
+      <HorizonSurface />
+
       <ContactShadows
-        position={[0, -3.55, 0]}
-        opacity={0.48}
+        position={[0, -3.57, 0]}
+        opacity={0.56}
         scale={17}
-        blur={2.8}
+        blur={2.45}
         far={7}
         color="#0d4b49"
       />
