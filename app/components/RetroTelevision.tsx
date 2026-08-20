@@ -541,6 +541,8 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
           type="button"
           className="meshKnobHit"
           aria-label={label}
+          onPointerEnter={() => setHovered(true)}
+          onPointerLeave={() => setHovered(false)}
           onPointerDown={(event) => event.stopPropagation()}
           onFocus={() => setHovered(true)}
           onBlur={() => setHovered(false)}
