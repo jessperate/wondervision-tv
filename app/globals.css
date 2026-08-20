@@ -1,9 +1,10 @@
 :root {
   color-scheme: dark;
-  --cream: #f8e7bb;
-  --gold: #d99b4d;
-  --coral: #ee7658;
-  --teal: #55bcb4;
+  --ink: #173a39;
+  --cream: #fff0c7;
+  --teal: #58c6bc;
+  --deep-teal: #24766f;
+  --coral: #e77958;
 }
 
 * {
@@ -18,399 +19,590 @@ body {
 
 body {
   overflow: hidden;
-  background: #55bcb4;
+  background: var(--teal);
+  color: var(--cream);
   font-family: Arial, Helvetica, sans-serif;
 }
 
-button {
+button,
+a {
   font: inherit;
 }
 
-.stage {
+button {
+  color: inherit;
+}
+
+.experience {
   position: relative;
+  isolation: isolate;
   width: 100vw;
   height: 100svh;
+  min-height: 620px;
   overflow: hidden;
-  display: grid;
-  place-items: center;
-  background: #55bcb4;
+  background:
+    radial-gradient(circle at 48% 32%, rgb(183 255 243 / 55%) 0, transparent 28%),
+    radial-gradient(circle at 50% 83%, rgb(10 93 87 / 24%) 0, transparent 38%),
+    linear-gradient(135deg, #337f79 0%, #66cec3 52%, #4bb4ac 100%);
 }
 
-.television {
+.experience::before {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  flex: none;
-  width: calc(150svh * 2360 / 1460);
-  height: 150svh;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, rgb(11 74 71 / 33%), transparent 28% 70%, rgb(14 94 88 / 20%));
+  content: "";
 }
 
-.televisionArtwork {
+.sceneCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  touch-action: none;
+}
+
+.sceneCanvas canvas {
+  display: block;
+  cursor: grab;
+  outline: none;
+}
+
+.sceneCanvas canvas:active {
+  cursor: grabbing;
+}
+
+.sceneHalo {
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
   z-index: 0;
-  object-fit: contain;
+  width: min(76vw, 1040px);
+  height: 24vh;
+  border-radius: 50%;
+  background: rgb(162 245 228 / 40%);
+  filter: blur(70px);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.sceneNoise {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0.055;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}
+
+.screenMount,
+.brandMount {
   pointer-events: none;
   user-select: none;
 }
 
-.screenMask {
-  position: absolute;
-  z-index: 1;
-  top: 36.2%;
-  left: 29.35%;
-  width: 28.55%;
-  height: 34.5%;
-  overflow: hidden;
-  border-radius: 13% 13% 13% 13% / 14% 15% 13% 15%;
-  clip-path: polygon(6% 2%, 91% 0%, 97% 4%, 100% 13%, 100% 86%, 96% 95%, 88% 99%, 10% 98%, 4% 94%, 1% 84%, 0% 15%, 2% 7%);
-  transform: translateZ(0);
-  background: #0b0b0b;
+.meshKnobMount {
+  pointer-events: auto;
 }
 
-.broadcast {
-  position: relative;
-  isolation: isolate;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  color: var(--cream);
-  background:
-    radial-gradient(circle at 50% 42%, rgb(239 119 86 / 45%), transparent 29%),
-    radial-gradient(circle at 77% 18%, rgb(248 231 187 / 16%), transparent 19%),
-    linear-gradient(145deg, #0b343a 0%, #164e50 45%, #0c282d 100%);
-  box-shadow: inset 0 0 8vw rgb(0 0 0 / 82%);
-  transition: background 320ms ease;
-}
-
-.broadcast.channel-1 {
-  background:
-    radial-gradient(circle at 50% 48%, rgb(236 118 88 / 38%), transparent 25%),
-    linear-gradient(145deg, #281c3c 0%, #512d4d 48%, #162a38 100%);
-}
-
-.broadcast.channel-2 {
-  background:
-    radial-gradient(circle at center, #1b4f51 0 20%, transparent 20.5%),
-    repeating-conic-gradient(from 22deg at center, #d7a250 0 12.5%, #173d3e 0 25%);
-}
-
-.broadcast::before,
-.broadcast::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  border: clamp(1px, 0.15vw, 3px) solid rgb(246 224 172 / 22%);
-  border-radius: 50%;
-  transition: opacity 220ms ease;
-}
-
-.broadcast::before {
-  width: 62%;
-  aspect-ratio: 1;
-  top: 19%;
-  left: 19%;
-  transform: rotate(18deg);
-}
-
-.broadcast::after {
-  width: 42%;
-  aspect-ratio: 1;
-  top: 29%;
-  left: 29%;
-  border-color: rgb(238 118 88 / 35%);
-  transform: rotate(-20deg);
-}
-
-.screenContent {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: tuneIn 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  transition: opacity 180ms ease;
-}
-
-.scanlines,
-.screenGlow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.scanlines {
-  z-index: 5;
-  opacity: 0.2;
-  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgb(0 0 0 / 38%) 4px);
-  animation: flicker 8s linear infinite;
-}
-
-.screenGlow {
-  z-index: 4;
-  background:
-    linear-gradient(115deg, rgb(255 255 255 / 17%), transparent 27%),
-    radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / 65%) 100%);
-  mix-blend-mode: screen;
-}
-
-.stationId,
-.signal {
-  position: absolute;
-  z-index: 2;
-  margin: 0;
-  font-size: clamp(6px, 0.62vw, 12px);
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.stationId {
-  top: 11%;
-  left: 11%;
-  display: flex;
-  gap: 0.9em;
-}
-
-.stationId span:first-child {
-  color: var(--coral);
-}
-
-.signal {
-  right: 10%;
-  bottom: 10%;
-  color: rgb(248 231 187 / 70%);
-}
-
-.program {
-  position: relative;
-  z-index: 2;
-  width: 76%;
-  text-align: center;
-}
-
-.eyebrow {
-  margin: 0 0 0.7em;
-  color: var(--coral);
-  font-size: clamp(6px, 0.7vw, 13px);
-  font-weight: 800;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-}
-
-.program h1 {
-  margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(22px, 3.7vw, 70px);
-  font-style: italic;
-  font-weight: 500;
-  line-height: 0.92;
-  letter-spacing: -0.055em;
-  text-shadow: 0 0.07em 0 #80382d, 0 0 0.7em rgb(248 231 187 / 28%);
-}
-
-.tagline {
-  margin: 1em auto 1.4em;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(8px, 0.9vw, 17px);
-  font-style: italic;
-  color: rgb(248 231 187 / 80%);
-}
-
-.program button {
-  border: 1px solid rgb(248 231 187 / 55%);
-  border-radius: 999px;
-  padding: 0.75em 1.35em;
-  color: #173d3e;
-  background: var(--cream);
-  font-size: clamp(6px, 0.7vw, 13px);
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
-}
-
-.program button:hover {
-  transform: translateY(-2px);
-  background: #fff3cf;
-  box-shadow: 0 0.65em 1.7em rgb(0 0 0 / 28%);
-}
-
-.program button:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 3px;
-}
-
-.powerStandby {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.8em;
-  opacity: 0;
-  color: rgb(248 231 187 / 48%);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(10px, 1.2vw, 21px);
-  font-style: italic;
-  letter-spacing: 0.08em;
-  transition: opacity 240ms ease;
-}
-
-.powerStandby span {
-  width: 0.45em;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #ce5e49;
-  box-shadow: 0 0 0.8em #ce5e49;
-}
-
-.broadcast.isOff {
-  background: #090a09;
-}
-
-.broadcast.isOff::before,
-.broadcast.isOff::after,
-.broadcast.isOff .screenContent {
-  opacity: 0;
-}
-
-.broadcast.isOff .powerStandby {
-  opacity: 1;
-}
-
-.dial {
-  position: absolute;
-  z-index: 3;
-  left: 62.78%;
-  width: 4.55%;
-  height: 7.36%;
+.meshKnobHit {
+  display: block;
+  width: 112px;
+  height: 112px;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  color: var(--cream);
+  outline: 0;
   background: transparent;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-.channelDial {
-  top: 37.82%;
+.meshKnobHit:focus-visible {
+  outline: 6px solid rgb(255 244 213 / 90%);
+  outline-offset: 7px;
 }
 
-.powerDial {
-  top: 62.75%;
+.threeScreen {
+  position: relative;
+  isolation: isolate;
+  width: 700px;
+  height: 504px;
+  overflow: hidden;
+  border: 1px solid rgb(255 243 213 / 18%);
+  border-radius: 48px;
+  color: #f8e7bb;
+  background:
+    radial-gradient(circle at 50% 43%, color-mix(in srgb, var(--screen-accent) 62%, transparent), transparent 31%),
+    linear-gradient(145deg, var(--screen-a), var(--screen-b) 54%, #07171a);
+  box-shadow: inset 0 0 115px rgb(0 0 0 / 78%);
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background 220ms ease, filter 220ms ease;
 }
 
-.dialVisual {
+.threeScreen::before,
+.threeScreen::after {
   position: absolute;
-  inset: 4%;
-  border: clamp(1px, 0.09vw, 2px) solid transparent;
-  border-radius: 50%;
-  transform: rotate(var(--dial-angle, 0deg));
-  transition: transform 420ms cubic-bezier(0.2, 0.85, 0.25, 1), border-color 160ms ease, box-shadow 160ms ease;
-}
-
-.dialVisual::after {
-  content: "";
-  position: absolute;
-  top: -4%;
-  left: 50%;
-  width: 8%;
+  z-index: -1;
+  width: 58%;
   aspect-ratio: 1;
+  border: 3px solid rgb(248 231 187 / 16%);
   border-radius: 50%;
-  transform: translateX(-50%);
-  background: #fff1c8;
-  box-shadow: 0 0 0.7em #f8c98a;
-  opacity: 0;
-  transition: opacity 160ms ease;
+  content: "";
 }
 
-.dial::before {
-  content: attr(data-label);
+.threeScreen::before {
+  top: 9%;
+  left: 21%;
+  transform: rotate(18deg);
+}
+
+.threeScreen::after {
+  top: 23%;
+  left: 31%;
+  width: 38%;
+  border-color: color-mix(in srgb, var(--screen-accent) 35%, transparent);
+  transform: rotate(-20deg);
+}
+
+.threeScanlines,
+.threeReflection {
   position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.threeScanlines {
+  z-index: 5;
+  opacity: 0.28;
+  background: repeating-linear-gradient(to bottom, transparent 0 4px, rgb(0 0 0 / 34%) 5px 6px);
+}
+
+.threeReflection {
+  z-index: 4;
+  background:
+    linear-gradient(115deg, rgb(255 255 255 / 14%), transparent 27%),
+    radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / 50%) 100%);
+  mix-blend-mode: screen;
+}
+
+.threeBroadcast {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  animation: threeTuneIn 540ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: opacity 180ms ease;
+}
+
+.threeStation {
+  position: absolute;
+  top: 54px;
+  left: 64px;
+  display: flex;
+  gap: 20px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.21em;
+}
+
+.threeStation b {
+  color: var(--screen-accent);
+}
+
+.threeProgram {
+  position: absolute;
+  top: 50%;
   left: 50%;
-  bottom: calc(100% + 0.7em);
-  padding: 0.45em 0.7em;
-  border: 1px solid rgb(248 231 187 / 30%);
+  width: 82%;
+  text-align: center;
+  transform: translate(-50%, -45%);
+}
+
+.threeProgram small {
+  color: var(--screen-accent);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.28em;
+}
+
+.threeProgram h1 {
+  margin: 19px 0 0;
+  color: #fff0c7;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 64px;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+  text-shadow: 0 5px 0 #653228, 0 0 32px rgb(255 240 199 / 28%);
+}
+
+.threeProgram p {
+  margin: 22px auto 26px;
+  color: rgb(255 240 199 / 74%);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  font-style: italic;
+}
+
+.threeAction {
+  display: inline-flex;
+  min-width: 190px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 240 199 / 54%);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+}
+
+.threeSignal {
+  position: absolute;
+  right: 60px;
+  bottom: 45px;
+  color: rgb(255 240 199 / 56%);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+}
+
+.threeStandby {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  opacity: 0;
+  color: rgb(255 240 199 / 44%);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 28px;
+  font-style: italic;
+  transition: opacity 220ms ease;
+}
+
+.threeStandby i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d76b52;
+  box-shadow: 0 0 18px #d76b52;
+}
+
+.threeScreen.isOff {
+  background: #060807;
+  filter: brightness(0.8);
+}
+
+.threeScreen.isOff::before,
+.threeScreen.isOff::after,
+.threeScreen.isOff .threeBroadcast {
+  opacity: 0;
+  visibility: hidden;
+  animation: none;
+}
+
+.threeScreen.isOff .threeStandby {
+  opacity: 1;
+}
+
+.threeBrand {
+  width: 370px;
+  color: #fff0c7;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 54px;
+  font-style: italic;
+  text-align: center;
+  text-shadow: 0 7px 1px rgb(92 46 25 / 72%), 0 13px 18px rgb(51 24 12 / 42%);
+  white-space: nowrap;
+}
+
+@keyframes threeTuneIn {
+  0% {
+    opacity: 0;
+    filter: brightness(3) blur(9px);
+    transform: scaleY(0.06);
+  }
+
+  38% {
+    opacity: 1;
+    filter: brightness(2);
+    transform: scaleY(0.06);
+  }
+
+  100% {
+    opacity: 1;
+    filter: none;
+    transform: scaleY(1);
+  }
+}
+
+.sceneHeader {
+  position: absolute;
+  top: clamp(20px, 4vw, 52px);
+  right: clamp(22px, 5vw, 76px);
+  left: clamp(22px, 5vw, 76px);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  color: var(--cream);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(17px, 1.5vw, 24px);
+  font-style: italic;
+  text-decoration: none;
+  text-shadow: 0 2px 18px rgb(14 69 65 / 28%);
+  pointer-events: auto;
+}
+
+.wordmark span {
+  display: grid;
+  width: 34px;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgb(255 240 199 / 65%);
+  border-radius: 50%;
+  font-size: 17px;
+  font-style: normal;
+}
+
+.sceneHeader p {
+  margin: 0;
+  color: rgb(255 240 199 / 68%);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.sceneHud {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.broadcastStatus {
+  position: absolute;
+  bottom: clamp(28px, 5vw, 64px);
+  left: clamp(22px, 5vw, 76px);
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 180px;
+}
+
+.statusLight {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border: 1px solid rgb(255 240 199 / 55%);
+  border-radius: 50%;
+  background: #765044;
+  box-shadow: 0 0 0 5px rgb(42 105 100 / 42%);
+  transition: background 240ms ease, box-shadow 240ms ease;
+}
+
+.statusLight.isOn {
+  background: #ff9a69;
+  box-shadow: 0 0 18px #ff875c, 0 0 0 5px rgb(42 105 100 / 42%);
+}
+
+.broadcastStatus p,
+.broadcastStatus strong {
+  margin: 0;
+  line-height: 1.25;
+}
+
+.broadcastStatus p {
+  color: rgb(255 240 199 / 62%);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.broadcastStatus strong {
+  display: block;
+  margin-top: 3px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.controlPanel {
+  position: absolute;
+  right: clamp(22px, 5vw, 76px);
+  bottom: clamp(28px, 5vw, 64px);
+  display: flex;
+  gap: 9px;
+  pointer-events: auto;
+}
+
+.controlButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 154px;
+  padding: 8px 14px 8px 8px;
+  border: 1px solid rgb(255 240 199 / 28%);
   border-radius: 999px;
   color: var(--cream);
-  background: rgb(16 52 52 / 88%);
-  box-shadow: 0 0.45em 1.2em rgb(0 0 0 / 22%);
-  font-size: clamp(6px, 0.52vw, 10px);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  background: rgb(17 90 85 / 46%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%), 0 12px 32px rgb(10 63 60 / 14%);
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.controlButton:hover {
+  border-color: rgb(255 240 199 / 64%);
+  background: rgb(23 103 97 / 65%);
+  transform: translateY(-2px);
+}
+
+.controlButton:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.controlButton:focus-visible,
+.wordmark:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 4px;
+}
+
+.controlIcon {
+  display: grid;
+  width: 35px;
+  aspect-ratio: 1;
+  flex: none;
+  place-items: center;
+  border: 1px solid rgb(255 240 199 / 35%);
+  border-radius: 50%;
+  color: #ffe4ad;
+  background: rgb(11 70 66 / 52%);
+  font-size: 14px;
+  transition: color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.channelIcon {
+  font-size: 19px;
+}
+
+.controlButton.isActive .controlIcon {
+  color: #fff3d4;
+  background: #c46b43;
+  box-shadow: 0 0 18px rgb(255 151 91 / 35%);
+}
+
+.controlButton small {
+  display: block;
+  margin-bottom: 2px;
+  color: rgb(255 240 199 / 55%);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, 0.3em);
-  transition: opacity 160ms ease, transform 160ms ease;
 }
 
-.dial:hover .dialVisual,
-.dial:focus-visible .dialVisual {
-  border-color: rgb(255 241 200 / 85%);
-  box-shadow: 0 0 1em rgb(255 203 126 / 75%), inset 0 0 0.8em rgb(255 255 255 / 24%);
+.controlButton span:last-child {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.dial:hover .dialVisual::after,
-.dial:focus-visible .dialVisual::after,
-.powerDial.isActive .dialVisual::after {
-  opacity: 1;
+.interactionHint {
+  position: absolute;
+  right: 0;
+  bottom: clamp(112px, 10vw, 128px);
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  margin: 0;
+  color: rgb(255 240 199 / 52%);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-.dial:hover::before,
-.dial:focus-visible::before {
-  opacity: 1;
-  transform: translate(-50%, 0);
+.interactionHint span + span::before {
+  margin-right: 22px;
+  color: rgb(255 240 199 / 30%);
+  content: "·";
 }
 
-.dial:focus-visible {
-  outline: none;
-}
-
-.dial:active .dialVisual {
-  scale: 0.93;
-}
-
-.powerDial.isActive .dialVisual {
-  box-shadow: 0 0 1.15em rgb(255 198 111 / 52%);
-}
-
-@keyframes tuneIn {
-  from {
-    opacity: 0;
-    filter: blur(7px);
-    transform: scale(1.07);
-  }
-}
-
-@keyframes flicker {
-  0%, 96%, 100% { opacity: 0.2; }
-  97% { opacity: 0.32; }
-  98% { opacity: 0.12; }
-}
-
-@media (max-width: 700px) {
-  .television {
-    width: 170vw;
-    height: calc(170vw * 1460 / 2360);
-    transform: translate(-50%, -50%) translateY(-2vh);
+@media (max-width: 760px) {
+  .experience {
+    min-height: 540px;
   }
 
-  .dial::before {
+  .sceneHeader p,
+  .interactionHint {
     display: none;
+  }
+
+  .sceneHeader {
+    justify-content: center;
+  }
+
+  .broadcastStatus {
+    bottom: 104px;
+    left: 50%;
+    justify-content: center;
+    text-align: left;
+    transform: translateX(-50%);
+  }
+
+  .controlPanel {
+    right: 14px;
+    bottom: 24px;
+    left: 14px;
+  }
+
+  .controlButton {
+    min-width: 0;
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-height: 680px) and (min-width: 761px) {
+  .sceneHeader {
+    top: 20px;
+  }
+
+  .broadcastStatus,
+  .controlPanel {
+    bottom: 22px;
+  }
+
+  .interactionHint {
+    bottom: 84px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .screenContent,
-  .scanlines,
-  .dialVisual {
-    animation: none;
-    transition: none;
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
