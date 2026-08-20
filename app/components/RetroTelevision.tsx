@@ -3,7 +3,7 @@
 import { Html, RoundedBox, useCursor, useTexture } from "@react-three/drei";
 import { type ThreeEvent, useFrame } from "@react-three/fiber";
 import gsap from "gsap";
-import { AdditiveBlending, DataTexture, DoubleSide, Group, PointLight, Quaternion, RepeatWrapping, RGBAFormat, Shape, SRGBColorSpace, Vector3 } from "three";
+import { AdditiveBlending, DataTexture, DoubleSide, Group, MeshBasicMaterial, PointLight, Quaternion, RepeatWrapping, RGBAFormat, Shape, SRGBColorSpace, Vector3 } from "three";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { TV_PROGRAMS } from "../lib/tv-programs";
 
@@ -64,6 +64,13 @@ const BRAND_TEXTURE_CROP = {
   offsetY: 1 - 1355 / 2144,
   repeatX: (3361 - 581) / 3824,
   repeatY: (1355 - 697) / 2144,
+};
+
+const TOOTH_TEXTURE_CROP = {
+  offsetX: 1133 / 3824,
+  offsetY: 1 - 1803 / 2144,
+  repeatX: (2776 - 1133) / 3824,
+  repeatY: (1803 - 173) / 2144,
 };
 
 function useEnamelTexture() {
@@ -293,6 +300,50 @@ function Starburst({ active }: { active: boolean }) {
   );
 }
 
+function InactiveToothFace({ visible }: { visible: boolean }) {
+  const sourceTexture = useTexture("/tooth-knob-inactive.png");
+  const faceTexture = useMemo(() => {
+    const nextTexture = sourceTexture.clone();
+    nextTexture.colorSpace = SRGBColorSpace;
+    nextTexture.offset.set(TOOTH_TEXTURE_CROP.offsetX, TOOTH_TEXTURE_CROP.offsetY);
+    nextTexture.repeat.set(TOOTH_TEXTURE_CROP.repeatX, TOOTH_TEXTURE_CROP.repeatY);
+    nextTexture.anisotropy = 8;
+    nextTexture.needsUpdate = true;
+    return nextTexture;
+  }, [sourceTexture]);
+  const material = useRef<MeshBasicMaterial>(null);
+
+  useEffect(() => {
+    return () => faceTexture.dispose();
+  }, [faceTexture]);
+
+  useLayoutEffect(() => {
+    if (!material.current) return;
+    const fade = gsap.to(material.current, {
+      opacity: visible ? 1 : 0,
+      duration: visible ? 0.28 : 0.16,
+      ease: "power2.out",
+    });
+    return () => {
+      fade.kill();
+    };
+  }, [visible]);
+
+  return (
+    <mesh position={[0, 0, 0.43]} renderOrder={4} castShadow>
+      <planeGeometry args={[1.08, 1.071]} />
+      <meshBasicMaterial
+        ref={material}
+        map={faceTexture}
+        transparent
+        alphaTest={0.04}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+}
+
 function KnobEmblem({ symbol, active }: { symbol: KnobProps["symbol"]; active: boolean }) {
   const shape = useMemo(() => {
     const nextShape = new Shape();
@@ -425,6 +476,7 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
           </mesh>
       ))}
       <KnobEmblem symbol={symbol} active={active} />
+      {symbol === "tooth" ? <InactiveToothFace visible={!hovered} /> : null}
       {hovered ? (
         <pointLight position={[0, 0, 0.8]} color="#ffd39a" intensity={2.2} distance={2.5} />
       ) : null}
@@ -434,6 +486,8 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
           className="meshKnobHit"
           aria-label={label}
           onPointerDown={(event) => event.stopPropagation()}
+          onFocus={() => setHovered(true)}
+          onBlur={() => setHovered(false)}
           onClick={(event) => {
             event.stopPropagation();
             trigger();
