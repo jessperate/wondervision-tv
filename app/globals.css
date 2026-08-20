@@ -130,12 +130,15 @@ button {
   height: 504px;
   overflow: hidden;
   border: 1px solid rgb(255 243 213 / 18%);
-  border-radius: 48px;
+  border-radius: 76px;
   color: #f8e7bb;
   background:
     radial-gradient(circle at 50% 43%, color-mix(in srgb, var(--screen-accent) 62%, transparent), transparent 31%),
     linear-gradient(145deg, var(--screen-a), var(--screen-b) 54%, #07171a);
-  box-shadow: inset 0 0 115px rgb(0 0 0 / 78%);
+  box-shadow:
+    inset 0 0 125px rgb(0 0 0 / 82%),
+    inset 18px 10px 30px rgb(255 255 255 / 5%),
+    0 0 18px rgb(73 31 15 / 36%);
   font-family: Arial, Helvetica, sans-serif;
   transition: background 220ms ease, filter 220ms ease;
 }
