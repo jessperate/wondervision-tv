@@ -17,8 +17,8 @@ body {
 }
 
 body {
-  overflow-x: hidden;
-  background: #56bdb5;
+  overflow: hidden;
+  background: #55bcb4;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -27,17 +27,23 @@ button {
 }
 
 .stage {
-  min-height: 100svh;
+  position: relative;
+  width: 100vw;
+  height: 100svh;
+  overflow: hidden;
   display: grid;
   place-items: center;
-  background: #56bdb5;
+  background: #55bcb4;
 }
 
 .television {
-  position: relative;
-  width: min(100vw, calc(100svh * 1.7853));
-  aspect-ratio: 1680 / 941;
-  overflow: hidden;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  flex: none;
+  width: calc(150svh * 2360 / 1460);
+  height: 150svh;
+  transform: translate(-50%, -50%);
 }
 
 .televisionArtwork {
@@ -50,15 +56,15 @@ button {
 .screenMask {
   position: absolute;
   z-index: 1;
-  top: 25.9%;
-  left: 22.75%;
-  width: 40.25%;
-  height: 52.5%;
+  top: 36.2%;
+  left: 29.35%;
+  width: 28.55%;
+  height: 34.5%;
   overflow: hidden;
-  border-radius: 14% 13% 13% 14% / 14% 15% 14% 16%;
-  clip-path: polygon(7% 3%, 90% 0%, 97% 4%, 100% 13%, 100% 86%, 96% 95%, 88% 99%, 10% 98%, 4% 94%, 1% 84%, 0% 15%, 2% 8%);
+  border-radius: 13% 13% 13% 13% / 14% 15% 13% 15%;
+  clip-path: polygon(6% 2%, 91% 0%, 97% 4%, 100% 13%, 100% 86%, 96% 95%, 88% 99%, 10% 98%, 4% 94%, 1% 84%, 0% 15%, 2% 7%);
   transform: translateZ(0);
-  background: #111;
+  background: #0b0b0b;
 }
 
 .broadcast {
@@ -67,15 +73,25 @@ button {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   color: var(--cream);
   background:
     radial-gradient(circle at 50% 42%, rgb(239 119 86 / 45%), transparent 29%),
     radial-gradient(circle at 77% 18%, rgb(248 231 187 / 16%), transparent 19%),
     linear-gradient(145deg, #0b343a 0%, #164e50 45%, #0c282d 100%);
-  box-shadow: inset 0 0 8vw rgb(0 0 0 / 80%);
+  box-shadow: inset 0 0 8vw rgb(0 0 0 / 82%);
+  transition: background 320ms ease;
+}
+
+.broadcast.channel-1 {
+  background:
+    radial-gradient(circle at 50% 48%, rgb(236 118 88 / 38%), transparent 25%),
+    linear-gradient(145deg, #281c3c 0%, #512d4d 48%, #162a38 100%);
+}
+
+.broadcast.channel-2 {
+  background:
+    radial-gradient(circle at center, #1b4f51 0 20%, transparent 20.5%),
+    repeating-conic-gradient(from 22deg at center, #d7a250 0 12.5%, #173d3e 0 25%);
 }
 
 .broadcast::before,
@@ -85,19 +101,35 @@ button {
   z-index: -1;
   border: clamp(1px, 0.15vw, 3px) solid rgb(246 224 172 / 22%);
   border-radius: 50%;
+  transition: opacity 220ms ease;
 }
 
 .broadcast::before {
   width: 62%;
   aspect-ratio: 1;
+  top: 19%;
+  left: 19%;
   transform: rotate(18deg);
 }
 
 .broadcast::after {
   width: 42%;
   aspect-ratio: 1;
+  top: 29%;
+  left: 29%;
   border-color: rgb(238 118 88 / 35%);
   transform: rotate(-20deg);
+}
+
+.screenContent {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: tuneIn 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: opacity 180ms ease;
 }
 
 .scanlines,
@@ -117,7 +149,7 @@ button {
 .screenGlow {
   z-index: 4;
   background:
-    linear-gradient(115deg, rgb(255 255 255 / 16%), transparent 27%),
+    linear-gradient(115deg, rgb(255 255 255 / 17%), transparent 27%),
     radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / 65%) 100%);
   mix-blend-mode: screen;
 }
@@ -127,7 +159,7 @@ button {
   position: absolute;
   z-index: 2;
   margin: 0;
-  font-size: clamp(5px, 0.57vw, 11px);
+  font-size: clamp(6px, 0.62vw, 12px);
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -153,15 +185,14 @@ button {
 .program {
   position: relative;
   z-index: 2;
-  width: 74%;
+  width: 76%;
   text-align: center;
-  animation: tuneIn 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .eyebrow {
   margin: 0 0 0.7em;
   color: var(--coral);
-  font-size: clamp(6px, 0.68vw, 13px);
+  font-size: clamp(6px, 0.7vw, 13px);
   font-weight: 800;
   letter-spacing: 0.24em;
   text-transform: uppercase;
@@ -170,7 +201,7 @@ button {
 .program h1 {
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(18px, 3.5vw, 66px);
+  font-size: clamp(22px, 3.7vw, 70px);
   font-style: italic;
   font-weight: 500;
   line-height: 0.92;
@@ -181,9 +212,9 @@ button {
 .tagline {
   margin: 1em auto 1.4em;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(7px, 0.86vw, 16px);
+  font-size: clamp(8px, 0.9vw, 17px);
   font-style: italic;
-  color: rgb(248 231 187 / 78%);
+  color: rgb(248 231 187 / 80%);
 }
 
 .program button {
@@ -192,7 +223,7 @@ button {
   padding: 0.75em 1.35em;
   color: #173d3e;
   background: var(--cream);
-  font-size: clamp(6px, 0.68vw, 13px);
+  font-size: clamp(6px, 0.7vw, 13px);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -211,11 +242,149 @@ button {
   outline-offset: 3px;
 }
 
+.powerStandby {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8em;
+  opacity: 0;
+  color: rgb(248 231 187 / 48%);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(10px, 1.2vw, 21px);
+  font-style: italic;
+  letter-spacing: 0.08em;
+  transition: opacity 240ms ease;
+}
+
+.powerStandby span {
+  width: 0.45em;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ce5e49;
+  box-shadow: 0 0 0.8em #ce5e49;
+}
+
+.broadcast.isOff {
+  background: #090a09;
+}
+
+.broadcast.isOff::before,
+.broadcast.isOff::after,
+.broadcast.isOff .screenContent {
+  opacity: 0;
+}
+
+.broadcast.isOff .powerStandby {
+  opacity: 1;
+}
+
+.dial {
+  position: absolute;
+  z-index: 3;
+  left: 62.78%;
+  width: 4.55%;
+  height: 7.36%;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--cream);
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.channelDial {
+  top: 37.82%;
+}
+
+.powerDial {
+  top: 62.75%;
+}
+
+.dialVisual {
+  position: absolute;
+  inset: 4%;
+  border: clamp(1px, 0.09vw, 2px) solid transparent;
+  border-radius: 50%;
+  transform: rotate(var(--dial-angle, 0deg));
+  transition: transform 420ms cubic-bezier(0.2, 0.85, 0.25, 1), border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.dialVisual::after {
+  content: "";
+  position: absolute;
+  top: -4%;
+  left: 50%;
+  width: 8%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: #fff1c8;
+  box-shadow: 0 0 0.7em #f8c98a;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.dial::before {
+  content: attr(data-label);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.7em);
+  padding: 0.45em 0.7em;
+  border: 1px solid rgb(248 231 187 / 30%);
+  border-radius: 999px;
+  color: var(--cream);
+  background: rgb(16 52 52 / 88%);
+  box-shadow: 0 0.45em 1.2em rgb(0 0 0 / 22%);
+  font-size: clamp(6px, 0.52vw, 10px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.3em);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.dial:hover .dialVisual,
+.dial:focus-visible .dialVisual {
+  border-color: rgb(255 241 200 / 85%);
+  box-shadow: 0 0 1em rgb(255 203 126 / 75%), inset 0 0 0.8em rgb(255 255 255 / 24%);
+}
+
+.dial:hover .dialVisual::after,
+.dial:focus-visible .dialVisual::after,
+.powerDial.isActive .dialVisual::after {
+  opacity: 1;
+}
+
+.dial:hover::before,
+.dial:focus-visible::before {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.dial:focus-visible {
+  outline: none;
+}
+
+.dial:active .dialVisual {
+  scale: 0.93;
+}
+
+.powerDial.isActive .dialVisual {
+  box-shadow: 0 0 1.15em rgb(255 198 111 / 52%);
+}
+
 @keyframes tuneIn {
   from {
     opacity: 0;
     filter: blur(7px);
-    transform: scale(1.08);
+    transform: scale(1.07);
   }
 }
 
@@ -225,9 +394,23 @@ button {
   98% { opacity: 0.12; }
 }
 
+@media (max-width: 700px) {
+  .television {
+    width: 170vw;
+    height: calc(170vw * 1460 / 2360);
+    transform: translate(-50%, -50%) translateY(-2vh);
+  }
+
+  .dial::before {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .program,
-  .scanlines {
+  .screenContent,
+  .scanlines,
+  .dialVisual {
     animation: none;
+    transition: none;
   }
 }
