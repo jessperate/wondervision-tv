@@ -111,6 +111,44 @@ function useEnamelTexture() {
   return texture;
 }
 
+function useBrushedCopperTexture() {
+  const texture = useMemo(() => {
+    const width = 256;
+    const height = 64;
+    const data = new Uint8Array(width * height * 4);
+    let seed = 1957;
+
+    for (let y = 0; y < height; y += 1) {
+      seed = (seed * 16807) % 2147483647;
+      const band = (seed / 2147483647 - 0.5) * 34;
+      for (let x = 0; x < width; x += 1) {
+        seed = (seed * 16807) % 2147483647;
+        const grain = (seed / 2147483647 - 0.5) * 12;
+        const longBrush = Math.sin(x * 0.075 + y * 0.31) * 6;
+        const value = Math.max(92, Math.min(210, Math.round(150 + band + grain + longBrush)));
+        const offset = (y * width + x) * 4;
+        data[offset] = Math.min(255, value + 58);
+        data[offset + 1] = Math.min(255, Math.round(value * 0.72 + 38));
+        data[offset + 2] = Math.min(255, Math.round(value * 0.48 + 28));
+        data[offset + 3] = 255;
+      }
+    }
+
+    const nextTexture = new DataTexture(data, width, height, RGBAFormat);
+    nextTexture.wrapS = RepeatWrapping;
+    nextTexture.wrapT = RepeatWrapping;
+    nextTexture.repeat.set(3.5, 1.15);
+    nextTexture.needsUpdate = true;
+    return nextTexture;
+  }, []);
+
+  useEffect(() => {
+    return () => texture.dispose();
+  }, [texture]);
+
+  return texture;
+}
+
 function useGlowTexture() {
   const texture = useMemo(() => {
     const size = 96;
@@ -412,17 +450,11 @@ function KnobEmblem({ symbol, active }: { symbol: KnobProps["symbol"]; active: b
 
 function CrystalKnob({ position, turn, active = true, label, symbol, onActivate }: KnobProps) {
   const group = useRef<Group>(null);
+  const brushedCopperTexture = useBrushedCopperTexture();
   const [hovered, setHovered] = useState(false);
-  const [engaged, setEngaged] = useState(false);
-  const engagementTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const toothEngaged = symbol === "tooth" && (hovered || engaged);
+  const [toothTurned, setToothTurned] = useState(false);
+  const toothEngaged = symbol === "tooth" && (hovered || toothTurned);
   useCursor(hovered);
-
-  useEffect(() => {
-    return () => {
-      if (engagementTimer.current) clearTimeout(engagementTimer.current);
-    };
-  }, []);
 
   useLayoutEffect(() => {
     if (!group.current) return;
@@ -443,11 +475,7 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
 
   function trigger() {
     if (!group.current) return;
-    if (symbol === "tooth") {
-      setEngaged(true);
-      if (engagementTimer.current) clearTimeout(engagementTimer.current);
-      engagementTimer.current = setTimeout(() => setEngaged(false), 720);
-    }
+    if (symbol === "tooth") setToothTurned(true);
     const press = gsap.timeline();
     press.to(group.current.scale, { x: 0.9, y: 0.9, z: 0.9, duration: 0.09 });
     press.to(group.current.scale, { x: 1, y: 1, z: 1, duration: 0.28, ease: "back.out(3)" });
@@ -468,7 +496,21 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
     >
       <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
         <cylinderGeometry args={[0.5, 0.55, 0.25, 64]} />
-        <meshPhysicalMaterial color="#d98a4e" emissive="#54200d" emissiveIntensity={0.1} metalness={0.68} roughness={0.2} clearcoat={1} clearcoatRoughness={0.08} />
+        <meshPhysicalMaterial
+          color={symbol === "tooth" ? "#fff4df" : "#d98a4e"}
+          map={symbol === "tooth" ? brushedCopperTexture : undefined}
+          emissive={symbol === "tooth" ? "#2d1108" : "#54200d"}
+          emissiveIntensity={symbol === "tooth" ? 0.045 : 0.1}
+          metalness={symbol === "tooth" ? 0.84 : 0.68}
+          roughness={symbol === "tooth" ? 0.34 : 0.2}
+          roughnessMap={symbol === "tooth" ? brushedCopperTexture : undefined}
+          bumpMap={symbol === "tooth" ? brushedCopperTexture : undefined}
+          bumpScale={symbol === "tooth" ? 0.018 : 0}
+          anisotropy={symbol === "tooth" ? 0.72 : 0}
+          anisotropyRotation={Math.PI / 2}
+          clearcoat={symbol === "tooth" ? 0.42 : 1}
+          clearcoatRoughness={symbol === "tooth" ? 0.25 : 0.08}
+        />
       </mesh>
       {symbol === "tooth" ? (
         <ToothMedallion illuminated={toothEngaged} />
