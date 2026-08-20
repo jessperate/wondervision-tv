@@ -66,11 +66,18 @@ const BRAND_TEXTURE_CROP = {
   repeatY: (1355 - 697) / 2144,
 };
 
-const TOOTH_TEXTURE_CROP = {
+const TOOTH_INACTIVE_TEXTURE_CROP = {
   offsetX: 1133 / 3824,
   offsetY: 1 - 1803 / 2144,
   repeatX: (2776 - 1133) / 3824,
   repeatY: (1803 - 173) / 2144,
+};
+
+const TOOTH_ACTIVE_TEXTURE_CROP = {
+  offsetX: 42 / 1736,
+  offsetY: 1 - 1656 / 1688,
+  repeatX: (1687 - 42) / 1736,
+  repeatY: (1656 - 30) / 1688,
 };
 
 function useEnamelTexture() {
@@ -300,18 +307,33 @@ function Starburst({ active }: { active: boolean }) {
   );
 }
 
-function InactiveToothFace({ visible }: { visible: boolean }) {
-  const sourceTexture = useTexture("/tooth-knob-inactive.png");
+function TexturedToothFace({
+  visible,
+  textureUrl,
+  crop,
+  size,
+  positionZ,
+  renderOrder,
+}: {
+  visible: boolean;
+  textureUrl: string;
+  crop: typeof TOOTH_INACTIVE_TEXTURE_CROP;
+  size: [number, number];
+  positionZ: number;
+  renderOrder: number;
+}) {
+  const sourceTexture = useTexture(textureUrl);
   const faceTexture = useMemo(() => {
     const nextTexture = sourceTexture.clone();
     nextTexture.colorSpace = SRGBColorSpace;
-    nextTexture.offset.set(TOOTH_TEXTURE_CROP.offsetX, TOOTH_TEXTURE_CROP.offsetY);
-    nextTexture.repeat.set(TOOTH_TEXTURE_CROP.repeatX, TOOTH_TEXTURE_CROP.repeatY);
+    nextTexture.offset.set(crop.offsetX, crop.offsetY);
+    nextTexture.repeat.set(crop.repeatX, crop.repeatY);
     nextTexture.anisotropy = 8;
     nextTexture.needsUpdate = true;
     return nextTexture;
-  }, [sourceTexture]);
+  }, [crop, sourceTexture]);
   const material = useRef<MeshBasicMaterial>(null);
+  const initialVisibility = useRef(visible);
 
   useEffect(() => {
     return () => faceTexture.dispose();
@@ -330,12 +352,13 @@ function InactiveToothFace({ visible }: { visible: boolean }) {
   }, [visible]);
 
   return (
-    <mesh position={[0, 0, 0.43]} renderOrder={4} castShadow>
-      <planeGeometry args={[1.08, 1.071]} />
+    <mesh position={[0, 0, positionZ]} renderOrder={renderOrder} castShadow>
+      <planeGeometry args={size} />
       <meshBasicMaterial
         ref={material}
         map={faceTexture}
         transparent
+        opacity={initialVisibility.current ? 1 : 0}
         alphaTest={0.04}
         depthWrite={false}
         toneMapped={false}
@@ -405,7 +428,16 @@ function KnobEmblem({ symbol, active }: { symbol: KnobProps["symbol"]; active: b
 function CrystalKnob({ position, turn, active = true, label, symbol, onActivate }: KnobProps) {
   const group = useRef<Group>(null);
   const [hovered, setHovered] = useState(false);
+  const [engaged, setEngaged] = useState(false);
+  const engagementTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toothEngaged = symbol === "tooth" && (hovered || engaged);
   useCursor(hovered);
+
+  useEffect(() => {
+    return () => {
+      if (engagementTimer.current) clearTimeout(engagementTimer.current);
+    };
+  }, []);
 
   useLayoutEffect(() => {
     if (!group.current) return;
@@ -426,6 +458,11 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
 
   function trigger() {
     if (!group.current) return;
+    if (symbol === "tooth") {
+      setEngaged(true);
+      if (engagementTimer.current) clearTimeout(engagementTimer.current);
+      engagementTimer.current = setTimeout(() => setEngaged(false), 720);
+    }
     const press = gsap.timeline();
     press.to(group.current.scale, { x: 0.9, y: 0.9, z: 0.9, duration: 0.09 });
     press.to(group.current.scale, { x: 1, y: 1, z: 1, duration: 0.28, ease: "back.out(3)" });
@@ -476,7 +513,26 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
           </mesh>
       ))}
       <KnobEmblem symbol={symbol} active={active} />
-      {symbol === "tooth" ? <InactiveToothFace visible={!hovered} /> : null}
+      {symbol === "tooth" ? (
+        <>
+          <TexturedToothFace
+            visible={!toothEngaged}
+            textureUrl="/tooth-knob-inactive.png"
+            crop={TOOTH_INACTIVE_TEXTURE_CROP}
+            size={[1.08, 1.071]}
+            positionZ={0.43}
+            renderOrder={4}
+          />
+          <TexturedToothFace
+            visible={toothEngaged}
+            textureUrl="/tooth-knob-active.png"
+            crop={TOOTH_ACTIVE_TEXTURE_CROP}
+            size={[1.08, 1.068]}
+            positionZ={0.435}
+            renderOrder={5}
+          />
+        </>
+      ) : null}
       {hovered ? (
         <pointLight position={[0, 0, 0.8]} color="#ffd39a" intensity={2.2} distance={2.5} />
       ) : null}
