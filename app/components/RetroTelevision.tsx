@@ -3,7 +3,7 @@
 import { Html, RoundedBox, useCursor, useTexture } from "@react-three/drei";
 import { type ThreeEvent, useFrame } from "@react-three/fiber";
 import gsap from "gsap";
-import { AdditiveBlending, DataTexture, DoubleSide, Group, MeshBasicMaterial, PointLight, Quaternion, RepeatWrapping, RGBAFormat, Shape, SRGBColorSpace, Vector3 } from "three";
+import { AdditiveBlending, DataTexture, DoubleSide, Group, PointLight, Quaternion, RepeatWrapping, RGBAFormat, Shape, SRGBColorSpace, Vector3 } from "three";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { TV_PROGRAMS } from "../lib/tv-programs";
 
@@ -307,60 +307,45 @@ function Starburst({ active }: { active: boolean }) {
   );
 }
 
-function TexturedToothFace({
-  visible,
-  textureUrl,
-  crop,
-  size,
-  positionZ,
-  renderOrder,
-}: {
-  visible: boolean;
-  textureUrl: string;
-  crop: typeof TOOTH_INACTIVE_TEXTURE_CROP;
-  size: [number, number];
-  positionZ: number;
-  renderOrder: number;
-}) {
-  const sourceTexture = useTexture(textureUrl);
-  const faceTexture = useMemo(() => {
-    const nextTexture = sourceTexture.clone();
+function ToothMedallion({ illuminated }: { illuminated: boolean }) {
+  const [inactiveSource, activeSource] = useTexture([
+    "/tooth-knob-inactive.png",
+    "/tooth-knob-active.png",
+  ]);
+  const inactiveTexture = useMemo(() => {
+    const nextTexture = inactiveSource.clone();
     nextTexture.colorSpace = SRGBColorSpace;
-    nextTexture.offset.set(crop.offsetX, crop.offsetY);
-    nextTexture.repeat.set(crop.repeatX, crop.repeatY);
+    nextTexture.offset.set(TOOTH_INACTIVE_TEXTURE_CROP.offsetX, TOOTH_INACTIVE_TEXTURE_CROP.offsetY);
+    nextTexture.repeat.set(TOOTH_INACTIVE_TEXTURE_CROP.repeatX, TOOTH_INACTIVE_TEXTURE_CROP.repeatY);
     nextTexture.anisotropy = 8;
     nextTexture.needsUpdate = true;
     return nextTexture;
-  }, [crop, sourceTexture]);
-  const material = useRef<MeshBasicMaterial>(null);
-  const initialVisibility = useRef(visible);
+  }, [inactiveSource]);
+  const activeTexture = useMemo(() => {
+    const nextTexture = activeSource.clone();
+    nextTexture.colorSpace = SRGBColorSpace;
+    nextTexture.offset.set(TOOTH_ACTIVE_TEXTURE_CROP.offsetX, TOOTH_ACTIVE_TEXTURE_CROP.offsetY);
+    nextTexture.repeat.set(TOOTH_ACTIVE_TEXTURE_CROP.repeatX, TOOTH_ACTIVE_TEXTURE_CROP.repeatY);
+    nextTexture.anisotropy = 8;
+    nextTexture.needsUpdate = true;
+    return nextTexture;
+  }, [activeSource]);
 
   useEffect(() => {
-    return () => faceTexture.dispose();
-  }, [faceTexture]);
-
-  useLayoutEffect(() => {
-    if (!material.current) return;
-    const fade = gsap.to(material.current, {
-      opacity: visible ? 1 : 0,
-      duration: visible ? 0.28 : 0.16,
-      ease: "power2.out",
-    });
     return () => {
-      fade.kill();
+      inactiveTexture.dispose();
+      activeTexture.dispose();
     };
-  }, [visible]);
+  }, [activeTexture, inactiveTexture]);
 
   return (
-    <mesh position={[0, 0, positionZ]} renderOrder={renderOrder} castShadow>
-      <planeGeometry args={size} />
+    <mesh position={[0, 0, 0.145]} renderOrder={4} castShadow>
+      <planeGeometry args={[1.045, 1.035]} />
       <meshBasicMaterial
-        ref={material}
-        map={faceTexture}
+        map={illuminated ? activeTexture : inactiveTexture}
         transparent
-        opacity={initialVisibility.current ? 1 : 0}
-        alphaTest={0.04}
-        depthWrite={false}
+        alphaTest={0.08}
+        depthWrite
         toneMapped={false}
       />
     </mesh>
@@ -485,58 +470,44 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
         <cylinderGeometry args={[0.5, 0.55, 0.25, 64]} />
         <meshPhysicalMaterial color="#d98a4e" emissive="#54200d" emissiveIntensity={0.1} metalness={0.68} roughness={0.2} clearcoat={1} clearcoatRoughness={0.08} />
       </mesh>
-      <mesh position={[0, 0, 0.14]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-        <cylinderGeometry args={[0.35, 0.4, 0.2, 12]} />
-        <meshPhysicalMaterial
-          color={active ? "#c78350" : "#5f4835"}
-          emissive={active ? "#6e2a14" : "#000000"}
-          emissiveIntensity={active ? 0.16 : 0}
-          metalness={0.32}
-          roughness={0.12}
-          transmission={0.18}
-          thickness={0.65}
-          clearcoat={1}
-        />
-      </mesh>
-      <mesh position={[0, 0.31, 0.29]}>
-        <sphereGeometry args={[0.055, 20, 20]} />
-        <meshStandardMaterial color="#fff0be" emissive="#ec9b55" emissiveIntensity={active ? 0.9 : 0.12} />
-      </mesh>
-      <mesh position={[0, 0, 0.255]}>
-        <torusGeometry args={[0.405, 0.055, 18, 64]} />
-        <meshPhysicalMaterial color="#f0a75d" metalness={0.72} roughness={0.16} clearcoat={1} />
-      </mesh>
-      {KNOB_JEWELS.map(([x, y], index) => (
-          <mesh key={index} position={[x, y, 0.31]} scale={[1, 1, 0.45]}>
-            <octahedronGeometry args={[0.062, 0]} />
-            <meshPhysicalMaterial color="#ffe3b1" metalness={0.36} roughness={0.08} transmission={0.24} clearcoat={1} />
-          </mesh>
-      ))}
-      <KnobEmblem symbol={symbol} active={active} />
       {symbol === "tooth" ? (
+        <ToothMedallion illuminated={toothEngaged} />
+      ) : (
         <>
-          <TexturedToothFace
-            visible={!toothEngaged}
-            textureUrl="/tooth-knob-inactive.png"
-            crop={TOOTH_INACTIVE_TEXTURE_CROP}
-            size={[1.08, 1.071]}
-            positionZ={0.43}
-            renderOrder={4}
-          />
-          <TexturedToothFace
-            visible={toothEngaged}
-            textureUrl="/tooth-knob-active.png"
-            crop={TOOTH_ACTIVE_TEXTURE_CROP}
-            size={[1.08, 1.068]}
-            positionZ={0.435}
-            renderOrder={5}
-          />
+          <mesh position={[0, 0, 0.14]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <cylinderGeometry args={[0.35, 0.4, 0.2, 12]} />
+            <meshPhysicalMaterial
+              color={active ? "#c78350" : "#5f4835"}
+              emissive={active ? "#6e2a14" : "#000000"}
+              emissiveIntensity={active ? 0.16 : 0}
+              metalness={0.32}
+              roughness={0.12}
+              transmission={0.18}
+              thickness={0.65}
+              clearcoat={1}
+            />
+          </mesh>
+          <mesh position={[0, 0.31, 0.29]}>
+            <sphereGeometry args={[0.055, 20, 20]} />
+            <meshStandardMaterial color="#fff0be" emissive="#ec9b55" emissiveIntensity={active ? 0.9 : 0.12} />
+          </mesh>
+          <mesh position={[0, 0, 0.255]}>
+            <torusGeometry args={[0.405, 0.055, 18, 64]} />
+            <meshPhysicalMaterial color="#f0a75d" metalness={0.72} roughness={0.16} clearcoat={1} />
+          </mesh>
+          {KNOB_JEWELS.map(([x, y], index) => (
+            <mesh key={index} position={[x, y, 0.31]} scale={[1, 1, 0.45]}>
+              <octahedronGeometry args={[0.062, 0]} />
+              <meshPhysicalMaterial color="#ffe3b1" metalness={0.36} roughness={0.08} transmission={0.24} clearcoat={1} />
+            </mesh>
+          ))}
+          <KnobEmblem symbol={symbol} active={active} />
         </>
-      ) : null}
+      )}
       {hovered ? (
         <pointLight position={[0, 0, 0.8]} color="#ffd39a" intensity={2.2} distance={2.5} />
       ) : null}
-      <Html transform center position={[0, 0, 0.34]} scale={0.34} className="meshKnobMount">
+      <Html transform center position={[0, 0, symbol === "tooth" ? 0.18 : 0.34]} scale={0.34} className="meshKnobMount">
         <button
           type="button"
           className="meshKnobHit"
