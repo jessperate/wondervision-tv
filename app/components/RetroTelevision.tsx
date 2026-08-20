@@ -1,9 +1,9 @@
 "use client";
 
-import { Html, RoundedBox, useCursor } from "@react-three/drei";
+import { Html, RoundedBox, useCursor, useTexture } from "@react-three/drei";
 import { type ThreeEvent, useFrame } from "@react-three/fiber";
 import gsap from "gsap";
-import { AdditiveBlending, DataTexture, DoubleSide, Group, PointLight, Quaternion, RepeatWrapping, RGBAFormat, Shape, Vector3 } from "three";
+import { AdditiveBlending, DataTexture, DoubleSide, Group, PointLight, Quaternion, RepeatWrapping, RGBAFormat, Shape, SRGBColorSpace, Vector3 } from "three";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { TV_PROGRAMS } from "../lib/tv-programs";
 
@@ -50,6 +50,21 @@ const DECORATIVE_STUDS: Array<[number, number]> = [
   [2.74, 2.04], [3.33, 2.06], [2.28, 1.46], [3.79, 1.48],
   [2.27, -1.72], [3.79, -1.69], [2.74, -2.26], [3.31, -2.28],
 ];
+
+const BRAND_DEPTH_LAYERS = Array.from({ length: 8 }, (_, index) => {
+  const progress = index / 7;
+  return {
+    position: [0.034 * (1 - progress), -0.028 * (1 - progress), index * 0.013] as [number, number, number],
+    color: index < 3 ? "#7c3d1d" : "#b66b34",
+  };
+});
+
+const BRAND_TEXTURE_CROP = {
+  offsetX: 581 / 3824,
+  offsetY: 1 - 1355 / 2144,
+  repeatX: (3361 - 581) / 3824,
+  repeatY: (1355 - 697) / 2144,
+};
 
 function useEnamelTexture() {
   const texture = useMemo(() => {
@@ -112,11 +127,47 @@ function useGlowTexture() {
   return texture;
 }
 
-function BrandPlate() {
+function ExtrudedBrandLogo() {
+  const sourceTexture = useTexture("/wondervision-logo.png");
+  const logoTexture = useMemo(() => {
+    const nextTexture = sourceTexture.clone();
+    nextTexture.colorSpace = SRGBColorSpace;
+    nextTexture.offset.set(BRAND_TEXTURE_CROP.offsetX, BRAND_TEXTURE_CROP.offsetY);
+    nextTexture.repeat.set(BRAND_TEXTURE_CROP.repeatX, BRAND_TEXTURE_CROP.repeatY);
+    nextTexture.anisotropy = 8;
+    nextTexture.needsUpdate = true;
+    return nextTexture;
+  }, [sourceTexture]);
+
+  useEffect(() => {
+    return () => logoTexture.dispose();
+  }, [logoTexture]);
+
   return (
-    <Html transform center position={[3.03, 0.42, 1.43]} scale={0.11} className="brandMount">
-      <div className="threeBrand">Wondervision</div>
-    </Html>
+    <group position={[3.03, 0.42, 1.31]}>
+      {BRAND_DEPTH_LAYERS.map((layer, index) => (
+        <mesh key={index} position={layer.position} castShadow>
+          <planeGeometry args={[1.43, 0.338]} />
+          <meshBasicMaterial
+            map={logoTexture}
+            color={layer.color}
+            transparent
+            alphaTest={0.12}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+      <mesh position={[0, 0, 0.117]} castShadow>
+        <planeGeometry args={[1.43, 0.338]} />
+        <meshBasicMaterial
+          map={logoTexture}
+          color="#fff8ea"
+          transparent
+          alphaTest={0.05}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
   );
 }
 
@@ -532,7 +583,7 @@ export function RetroTelevision({ channel, powered, onChannelChange, onPowerTogg
         <SpeakerGrille />
         <DecorativeStars />
 
-        <BrandPlate />
+        <ExtrudedBrandLogo />
 
         <mesh position={[-3.15, -3.0, 0.1]} rotation={[0.03, 0, -0.18]} castShadow>
           <cylinderGeometry args={[0.14, 0.29, 1.08, 32]} />
