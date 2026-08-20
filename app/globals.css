@@ -95,8 +95,7 @@ button {
   mix-blend-mode: soft-light;
 }
 
-.screenMount,
-.brandMount {
+.screenMount {
   pointer-events: none;
   user-select: none;
 }
@@ -310,17 +309,6 @@ button {
 
 .threeScreen.isOff .threeStandby {
   opacity: 1;
-}
-
-.threeBrand {
-  width: 370px;
-  color: #fff0c7;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 54px;
-  font-style: italic;
-  text-align: center;
-  text-shadow: 0 7px 1px rgb(92 46 25 / 72%), 0 13px 18px rgb(51 24 12 / 42%);
-  white-space: nowrap;
 }
 
 @keyframes threeTuneIn {
