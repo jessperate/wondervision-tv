@@ -450,12 +450,25 @@ function KnobEmblem({ symbol, active }: { symbol: KnobProps["symbol"]; active: b
 
 function CrystalKnob({ position, turn, active = true, label, symbol, onActivate }: KnobProps) {
   const group = useRef<Group>(null);
+  const clickSound = useRef<HTMLAudioElement | null>(null);
   const brushedCopperTexture = useBrushedCopperTexture();
   const [hovered, setHovered] = useState(false);
   const [toothOn, setToothOn] = useState(false);
   const [suppressHover, setSuppressHover] = useState(false);
   const toothEngaged = symbol === "tooth" && (toothOn || (hovered && !suppressHover));
   useCursor(hovered);
+
+  useEffect(() => {
+    const audio = new Audio("/vintage-knob-click.wav");
+    audio.preload = "auto";
+    audio.volume = 0.62;
+    clickSound.current = audio;
+
+    return () => {
+      audio.pause();
+      clickSound.current = null;
+    };
+  }, []);
 
   useLayoutEffect(() => {
     if (!group.current) return;
@@ -476,6 +489,10 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
 
   function trigger() {
     if (!group.current) return;
+    if (clickSound.current) {
+      clickSound.current.currentTime = 0;
+      void clickSound.current.play().catch(() => undefined);
+    }
     if (symbol === "tooth") {
       setToothOn((isOn) => {
         const nextOn = !isOn;
