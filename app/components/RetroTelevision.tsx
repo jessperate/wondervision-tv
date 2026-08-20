@@ -452,8 +452,9 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
   const group = useRef<Group>(null);
   const brushedCopperTexture = useBrushedCopperTexture();
   const [hovered, setHovered] = useState(false);
-  const [toothTurned, setToothTurned] = useState(false);
-  const toothEngaged = symbol === "tooth" && (hovered || toothTurned);
+  const [toothOn, setToothOn] = useState(false);
+  const [suppressHover, setSuppressHover] = useState(false);
+  const toothEngaged = symbol === "tooth" && (toothOn || (hovered && !suppressHover));
   useCursor(hovered);
 
   useLayoutEffect(() => {
@@ -475,7 +476,13 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
 
   function trigger() {
     if (!group.current) return;
-    if (symbol === "tooth") setToothTurned(true);
+    if (symbol === "tooth") {
+      setToothOn((isOn) => {
+        const nextOn = !isOn;
+        setSuppressHover(!nextOn);
+        return nextOn;
+      });
+    }
     const press = gsap.timeline();
     press.to(group.current.scale, { x: 0.9, y: 0.9, z: 0.9, duration: 0.09 });
     press.to(group.current.scale, { x: 1, y: 1, z: 1, duration: 0.28, ease: "back.out(3)" });
@@ -491,7 +498,10 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
         event.stopPropagation();
         setHovered(true);
       }}
-      onPointerLeave={() => setHovered(false)}
+      onPointerLeave={() => {
+        setHovered(false);
+        setSuppressHover(false);
+      }}
       userData={{ label }}
     >
       <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
@@ -546,7 +556,7 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
           <KnobEmblem symbol={symbol} active={active} />
         </>
       )}
-      {hovered ? (
+      {(symbol === "tooth" ? toothEngaged : hovered) ? (
         <pointLight position={[0, 0, 0.8]} color="#ffd39a" intensity={2.2} distance={2.5} />
       ) : null}
       <Html transform center position={[0, 0, symbol === "tooth" ? 0.18 : 0.34]} scale={0.34} className="meshKnobMount">
@@ -554,11 +564,18 @@ function CrystalKnob({ position, turn, active = true, label, symbol, onActivate 
           type="button"
           className="meshKnobHit"
           aria-label={label}
+          aria-pressed={symbol === "tooth" ? toothOn : undefined}
           onPointerEnter={() => setHovered(true)}
-          onPointerLeave={() => setHovered(false)}
+          onPointerLeave={() => {
+            setHovered(false);
+            setSuppressHover(false);
+          }}
           onPointerDown={(event) => event.stopPropagation()}
           onFocus={() => setHovered(true)}
-          onBlur={() => setHovered(false)}
+          onBlur={() => {
+            setHovered(false);
+            setSuppressHover(false);
+          }}
           onClick={(event) => {
             event.stopPropagation();
             trigger();
@@ -613,7 +630,6 @@ function DecorativeStars() {
 
 export function RetroTelevision({ channel, powered, onChannelChange, onPowerToggle }: RetroTelevisionProps) {
   const model = useRef<Group>(null);
-  const floating = useRef<Group>(null);
   const enamelTexture = useEnamelTexture();
 
   useLayoutEffect(() => {
@@ -630,14 +646,9 @@ export function RetroTelevision({ channel, powered, onChannelChange, onPowerTogg
     return () => context.revert();
   }, []);
 
-  useFrame((state) => {
-    if (!floating.current) return;
-    floating.current.position.y = Math.sin(state.clock.elapsedTime * 0.72) * 0.035;
-  });
-
   return (
     <group ref={model} dispose={null}>
-      <group ref={floating}>
+      <group>
         <RoundedBox args={[8.48, 5.4, 1.9]} radius={0.62} smoothness={10} position={[0, -0.02, -0.04]} castShadow receiveShadow>
           <meshPhysicalMaterial
             color="#dfa956"
